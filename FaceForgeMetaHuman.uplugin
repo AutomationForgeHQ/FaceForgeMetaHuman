@@ -1,7 +1,7 @@
 {
   "FileVersion": 3,
   "Version": 1,
-  "VersionName": "0.1.0\r",
+  "VersionName": "0.1.0",
   "FriendlyName": "FaceForge - MetaHuman Solver",
   "Description": "Registers UE 5.8's own audio-driven animation solver with FaceForge. Free, local, offline: a sound wave in, 81 MetaHuman face-board control curves out, with no MetaHuman asset required anywhere. This is the only module that links the MetaHuman plugin - remove it and FaceForge still loads, with one fewer solver.",
   "Category": "Automation Forge",
