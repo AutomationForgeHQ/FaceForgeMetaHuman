@@ -42,6 +42,29 @@ bool FMetaHumanVocabularyConverter::Convert(
 			GuiFrame.Add(In.CurveNames[CurveIdx].ToString(), In.GetValue(Frame, CurveIdx));
 		}
 
+		// The board's "both eyes" control has no row in the engine's table: it exists only inside
+		// the rig, where it feeds the two per-eye controls. An animator keys it far more often than
+		// the pair, and a key on it used to convert to nothing - eyes that never moved, silently.
+		// Folded into the pair here, so it converts wherever the input came from.
+		static const TCHAR* BothEyes[][3] =
+		{
+			{ TEXT("CTRL_C_eye.tx"), TEXT("CTRL_L_eye.tx"), TEXT("CTRL_R_eye.tx") },
+			{ TEXT("CTRL_C_eye.ty"), TEXT("CTRL_L_eye.ty"), TEXT("CTRL_R_eye.ty") },
+		};
+		for (const auto& Row : BothEyes)
+		{
+			if (const float* Both = GuiFrame.Find(Row[0]))
+			{
+				const float Value = *Both;
+				for (int32 Eye = 1; Eye <= 2; ++Eye)
+				{
+					float& PerEye = GuiFrame.FindOrAdd(Row[Eye]);
+					PerEye = FMath::Clamp(PerEye + Value, -1.f, 1.f);
+				}
+				GuiFrame.Remove(Row[0]);
+			}
+		}
+
 		RawFrames.Add(GuiToRawControlsUtils::ConvertGuiToRawControls(GuiFrame));
 	}
 
