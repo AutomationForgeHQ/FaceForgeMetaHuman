@@ -50,6 +50,29 @@ the solver's output is in **GUI** control names — two different vocabularies, 
 applied to this data. This plugin filters the GUI names itself, including jaw and tongue explicitly,
 because a mouth that opens without a jaw is not a mouth.
 
+## A second module: the video solve
+
+This plugin also ships `FaceForgeMetaHumanVideo`, a separate Editor module — the one non-audio-driven
+thing here. MetaHuman's monocular performance-capture pipeline turns a recorded video take into face
+curves, but the core `IFaceProvider` abstraction is audio-shaped: a provider turns sound into curves,
+and nothing in it describes turning *pictures* into them. So this module exposes one tool straight
+through `ToolsetRegistry` rather than through FaceForge's own toolset, on purpose, as a stopgap — it
+is meant to be deleted, not moved, once the video solve graduates into `IFaceProvider` itself.
+
+`SolveVideoTakeToLayer(BankPath, ClipId, LayerId, TakeDir, Weight)` solves a recorded video take
+through the MetaHuman monocular pipeline into a named layer on a face clip, kept whole beside
+whatever other layers the clip already holds — the performance-capture bridge that FaceForge's own
+Layers system (`SolveFaceClipToLayer`, `MergeFaceClipLayers`) then merges and bakes like any other.
+`TakeDir` is an absolute take folder (`frames/` and `source_audio.wav` inside), or `"latest"` for the
+newest one under the project's PerformanceForge/Takes. It is minutes of local GPU/CPU work for
+seconds of footage, one solve at a time, and every intermediate asset — image sequence, imported
+audio, footage data, the full per-frame performance asset — is saved under FaceForge's output path
+for inspection.
+
+It needs `CaptureData` (the `UFootageCaptureData` asset the solve reads footage through), `ImgMedia`
+(the image-sequence source inside that asset) and `ToolsetRegistry` (to publish the one tool) —
+all three enabled by this plugin's own `.uplugin`.
+
 ## Requires
 
 The `MetaHuman` plugin (for the solver and its models) and `StreamingADA` (whose `SpeechAnimationSolver`
